@@ -1,0 +1,169 @@
+---
+title: "HW2"
+author: "Zachary Gonzalez"
+date: "1/27/2022"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars, eval=FALSE, include=FALSE}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, eval=FALSE, include=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+Question 1 part a - find the type of trees data object 
+
+Install bioconductor
+
+```{r}
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install(version = "3.12")
+```
+
+Install multtest package 
+
+```{r}
+BiocManager::install(c("multtest"))
+```
+
+
+Import Data set
+```{r}
+library(multtest)
+data(golub)
+```
+
+
+```{r}
+gol.fac <- factor(golub.cl, levels=0:1, labels = c("ALL", "AML"))
+gol.fac
+```
+
+Question 1 part a - compute mean expression of the values among ALL patients 
+```{r}
+meanAll <- apply(golub[,gol.fac=="ALL"], 1, mean)
+```
+
+Question 1 part b - compute the mean expression of the values among AML patients 
+
+```{r}
+meanAML <- apply(golub[,gol.fac=="AML"], 1, mean)
+```
+
+Question 1 part c - output top three mean values for ALL data
+
+```{r}
+orderAll<-order(meanAll, decreasing = TRUE)
+print(golub.gnames[orderAll[1:3],2])
+```
+
+Question 1 part d - output top three mean values for AML data 
+
+```{r}
+orderAML<-order(meanAML, decreasing = TRUE)
+print(golub.gnames[orderAML[1:3],2])
+```
+Question 2 part a - save the expression values of the first five genes (of first five rows) for AML patients in a csv file
+
+```{r}
+orderGenesAML<-order(gol.fac=="AML", decreasing = TRUE)
+write.csv(golub.gnames[orderGenesAML[1:5],2], "AML5.csv")
+```
+
+Question 2 part b - save the expression values of the first five genes (of first five rows) for ALL patients in a text file 
+
+```{r}
+orderGenesALL<-order(gol.fac=="ALL", decreasing = TRUE)
+write.table(golub.gnames[orderGenesALL[1:5],2], "ALL5.txt")
+```
+
+Question 2 part c - compute the stdev of the expression values on the first patient of the 100th to 200th genes 
+
+```{r}
+sd(golub[100:200,1])
+```
+
+Question 2 part d - compute the stdev of the expression values of every gene, across all patients - find the # of genes with stdev greater than 1
+
+```{r}
+sum(apply(golub, 1, sd) > 1)
+```
+
+Question 2 part e - Create a scatter plot of the 101th gene expressions against the 102th gene expressions, label the x-axis and the y-axis with genes biological names using xlab and ylab
+
+```{r}
+plot(golub[101,], golub[102,], xlab = "101th Gene expression", ylab = "102th Gene Expression", main = paste(golub.gnames[101,2], "vs" , golub.gnames[102,2]))
+```
+
+
+Question 3 
+```{r}
+BiocManager::install("ALL")
+```
+```{r}
+library("ALL")
+data(ALL)
+```
+
+Question 3 part a - Produce a histogram of gene expressions in the matrix 
+
+```{r}
+B1 = exprs(ALL[,ALL$BT=="B1"])
+hist(B1)
+```
+```{r include=FALSE}
+apply(exprs(ALL[,ALL$BT=="B1"]), 1, mean)
+```
+
+Question 3 part c - give the gene identifiers of the three genes with the largest mean value 
+
+```{r}
+names(sort(apply(exprs(ALL[,ALL$BT=="B1"]), 1, mean), decreasing = TRUE)[1:3])
+```
+
+
+Question 4 part a
+
+Trees object is of type data frame 
+
+```{r}
+# find the type of the trees data object 
+data(trees)
+class(trees)
+```
+```{r eval=FALSE, include=FALSE}
+
+```
+Question 4 part b - produce an overlaid figure of the two scatter plots above 
+
+```{r}
+plot(trees$Girth, trees$Height, pch = "+", col = "blue", 
+     ylim = c(min(c(trees$Height, trees$Volume)), max(c(trees$Height, trees$Volume))),
+     main = "Tree Girth vs Height/Volume")
+points(trees$Girth, trees$Volume, pch = "o", col = "red")
+legend("bottomright", 
+       legend = c("Height (feet)", "Volume (cu feet)"),
+       pch = c("+", "o"),
+       col = c("blue", "red"))
+```
+
